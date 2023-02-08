@@ -12,14 +12,19 @@ import serialset
 #ui界面设置类
 class MyMainWindow(QMainWindow, Ui_MainWindow):
 
-  def __init__( self, parent=None ):  #初始函数
-    super(MyMainWindow, self).__init__(parent) #继承父类函数
+  def __init__(self, parent=None): 
+    '''
+    构造函数 主要是设置全局变量 关联信号和槽
+    '''
+    super(MyMainWindow, self).__init__(parent) #执行父类的构造函数
     self.setupUi(self) #继承窗口函数MyMainWindow.setupUi的所有变量 以便修改界面函数显示
     self.toolSet()#设置界面槽函数
     self.uivalueSet()#全局变量预设
     
-  #全局变量预设
   def uivalueSet(self): 
+    '''
+    全局变量设定
+    '''
     try:
       self.record_data_list = [] #记录的数据保存列表
       self.record_flag = False #是否进行记录
@@ -60,6 +65,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
       self.statusBar.showMessage("预设置加载成功",5000)
     except Exception as e:
       self.statusBar.showMessage('预设置加载错误：'+str(e))
+
   def toolSet(self):
     '''
     gui界面的按键槽函数设置连接
@@ -91,11 +97,11 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
     self.pushButton_19.clicked.connect(self.recordRead) #读取最近保存的文件
     self.pushButton_15.clicked.connect(self.savechangeData) #保存修改结果至文件
     self.tabWidget.currentChanged.connect(self.closeLink)#页面切换时断开和usb端口的链接
+
   def threadsts(self,finish_way:int):
     '''
     串口通信线程 结束时将返回结束状态并自动调用一次该函数
-    @参数
-    finish_way: 1表示线程正常结束   2表示线程运行异常（创建串口通信对象失败 可能是连接的串口名错误）结束
+    @param finish_way 1表示线程正常结束   2表示线程运行异常（创建串口通信对象失败 可能是连接的串口名错误）结束
     '''
     if finish_way == 1:
       self.statusBar.showMessage('成功关闭串口',5000)
@@ -103,6 +109,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
     else:
       self.statusBar.showMessage('串口连接失败',5000)
       self.pushButton_22.setText('连接')
+
   def sercomSet(self):
     '''
     连接串口 并创建串口的循环通信线程
@@ -120,11 +127,10 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
   def closeLink(self,current_index:int)->None:
     '''
     当页面切换时 如果串口处于连接状态 关闭串口线程
-    @参数
-    current_index: 当前的页面序号
+    @param current_index 当前的页面序号
     '''
     if(self.pushButton_27.text() == '完成记录' and current_index != 0):
-      reply = QMessageBox.question(self, '提示信息', '请完成记录后再切换界面进行其他操作,否则会出错', QMessageBox.Yes)
+      reply = QMessageBox.question(self, '提示信息', '请完成记录后再进行其他操作,否则可能会出错', QMessageBox.Yes)
       return
     if current_index != 0:
       if self.pushButton_22.text() == '断开':
@@ -136,10 +142,12 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
     '''
     serial_str = serialset.serialsearch()
     self.textBrowser.setText(serial_str)
+
   def callBack(self,data:list):
     '''
     串口通信线程 每当串口通信线程内的数据获得更新时 
     将会发送信号调用该函数刷新gui界面
+    @param data 一个由整数构成的list，长度为4
     '''
     data_del = data
     if self.checkBox_10.isChecked():
@@ -161,6 +169,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.statusBar.showMessage('记录数据量超过80000组,自动结束记录',5000)
         self.recordOpt()
         self.record_data_num = 0
+
   def recordOpt(self):
     '''
     数据记录槽函数
@@ -187,6 +196,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.statusBar.showMessage('打开保存目录',5000)
     except Exception as e:
       self.statusBar.showMessage('路径有误,打开文件夹失败',5000)
+
   def csvfileSave(self):
     '''
     保存csv文件
@@ -200,14 +210,15 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
       self.label_42.setText(csv_save_fullpath)
     else:
       self.statusBar.showMessage('取消保存，在新的记录开始之前可以使用保存记录按钮保存本次数据 ',5000)
+
   def clearSet(self,index:int):
     '''
     将数据清零标识符置位 清零下位机的累计数据
-    @参数
-    index: 1-4 分别清零 四个传感器的累计计量值   -1一次性清空所有传感器的累计计量值
+    @param index 参数1-4分别为清零四个传感器的累计计量值，参数-1一次性清空所有传感器的累计计量值
     '''
     self.serthread.clearflagSet(index)
     self.statusBar.showMessage('数据已清零',5000)
+
   def transDesad(self):
     '''
     更改当前待分析凸轮轴的型号  以匹配正确的设计形线值 以及 会影响正时点的计算方式
@@ -216,8 +227,11 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
       self.des_address = self.cwd+r'\inifiles\RV145设计值.csv'
     elif self.comboBox_3.currentIndex() == 1:
       self.des_address = self.cwd+r'\inifiles\RV80S设计值.csv'
-  #用户登录
-  def userLogin(self):  
+  
+  def userLogin(self): 
+    '''
+    更改用户的登录状态，会影响到软件某些功能的使用
+    ''' 
     if self.userright == 0:
       inpd = self.lineEdit_18.text()
       if inpd == self.trpd:
@@ -229,8 +243,11 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.statusBar.showMessage('密码错误',5000)
     else:
       self.statusBar.showMessage('用户已登录',5000)
-  #用户注销
+  
   def userLogout(self):
+    '''
+    注销用户的登录状态，会影响到软件某些功能的使用
+    ''' 
     if self.userright:
       self.userright = 0
       self.lineEdit_18.setEnabled(True)
@@ -238,8 +255,11 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
       self.statusBar.showMessage('已注销',5000)
     else:
       self.statusBar.showMessage('用户未登录',5000)
-  #参数界面 读取参数文件并显示在ui界面上
+  
   def readIni(self): 
+    '''
+    读取配置文件的参数并显示在界面上，需要用户处于登录状态
+    '''
     if self.userright:
       self.inipar.configRead()
       self.lineEdit_3.setText(self.inipar.cycle_value)
@@ -257,8 +277,11 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
       self.lineEdit_19.setText(self.inipar.dec_colname)
     else:
       self.statusBar.showMessage('用户未登录',5000)
-  #保存修改后的参数文件
+  
   def saveIni(self): 
+    '''
+    将修改后的参数信息写入配置文件中，需要用户处于登录状态
+    '''
     if self.userright:#如果用户已经登陆
       reply = QMessageBox.question(self,'确认提示','确认保存？', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
       if reply == QMessageBox.Yes:
@@ -281,38 +304,46 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.statusBar.showMessage('未保存',5000)
     else:
       self.statusBar.showMessage('用户未登录',5000)
-  #打开文件（主要）
+  
   def chooseDir(self):
+    '''
+    打开本地磁盘上的形线数据文件，文件格式为csv
+    '''
     file_choose = QFileDialog.getOpenFileName(self,'选择文件', self.openfile,'Excel files(*.csv);;All files(*)')
     if file_choose[0] != '':
       try:
         folder_path, file_name = os.path.split(file_choose[0])
         shutil.copy(file_choose[0],self.cwd+'\\tmp.csv')
         self.statusBar.showMessage('成功读取文件',5000)
-        #self.lineEdit.setText(file_choose[0])
         self.label_41.setText(file_choose[0])
         self.openfile = folder_path
       except Exception as e:
         self.statusBar.showMessage('文件打开错误'+str(e),5000)
     else:
       self.statusBar.showMessage('取消操作',5000)
-  #读取最近用数据读取器记录的文件
+  
   def recordRead(self):
+    '''
+    读取最近用数据记录功能记录的内存数据
+    '''
     file_choose = self.label_42.text()
     if file_choose != '':
       try:
         folder_path, file_name = os.path.split(file_choose)
         shutil.copy(file_choose,self.cwd+'\\tmp.csv')
         self.statusBar.showMessage('成功读取最近文件',5000)
-        #self.label_42.setText(file_choose)
         self.label_41.setText(file_choose)
         self.openfile = folder_path
       except Exception as e:
         self.statusBar.showMessage('文件打开错误'+str(e),5000)
     else:
       self.statusBar.showMessage('空路径',5000)
-  #打开文件 图形对比（附加）
+  
   def chooseDir2(self):
+    '''
+    打开本地磁盘上的形线数据文件，文件格式为csv。
+    区别于方式`chooseDir(self)`该方法读取的文件只可能在对比图像的绘制中被调用。
+    '''
     file_choose = QFileDialog.getOpenFileName(self,'选择文件', self.openfile,'Excel files(*.csv);;All files(*)')
     if file_choose[0] != '':
       try:
@@ -327,6 +358,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
       self.statusBar.showMessage('取消操作',5000)
   #修改文件数据（临时数据修改）
   def changeLine(self):
+    '''
+    修改形线数据，只是修改内存中的数据，未写入文件
+    '''
     try:
       data_ori = functiondataanalysis.readCsv(self.cwd+'\\tmp.csv')
       self.xcvalue = self.xcvalue+self.doubleSpinBox.value()
@@ -344,6 +378,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
   #撤销所有的修改（针对临时数据）
   def undoData(self): 
+    '''
+    撤销对内存中数据的修改，未写入文件
+    '''
     try:
       data_ori = functiondataanalysis.readCsv(self.cwd+'\\tmp.csv')
       data_ori = functiondataanalysis.MoveXY(data_ori,self.angle_colname,int(-self.xcvalue/self.angle_coefficient+0.5))
@@ -485,6 +522,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
   #一键分析
   def allAnalysis(self): 
+    '''
+    一键自动分析形线的各种数据
+    '''
     des_ori = functiondataanalysis.readCsv(self.des_address)
     data_ori = functiondataanalysis.readCsv(self.cwd+'\\tmp.csv')
     #根据凸轮轴型号选择正时点的夹角基准
@@ -503,9 +543,11 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
       functiondataanalysis.txtSave(self.label_41.text() + '.txt',self.textEdit.toPlainText())
       self.statusBar.showMessage('导出成功，导出至当前读取文件所在文件夹',5000)
   ##############################
-
-  #程序退出提示
   def closeEvent(self, event):
+    '''
+    重写qt事件中的退出事件，增加了退出的确认信息功能。pyqt事件的触发方法可以参考 [pyqt触发事件](https://blog.csdn.net/qq_42896653/article/details/100863417)
+    @param event qt触发的退出事件
+    '''
     reply = QMessageBox.question(self, '信息', '确认退出吗？', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
     if reply == QMessageBox.Yes:
       event.accept()

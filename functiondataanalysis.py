@@ -792,7 +792,7 @@ def polarplot(data_ori:pd.DataFrame,des_ori:pd.DataFrame,base_height:float,desig
     cycle_value: 角度周期值
     angle_coefficient: 角度的 脉冲数->度 的比例系数
     line_coefficient: 高度的 脉冲数->mm 的比例系数
-    tolerance: 测量的周期误差（用于判断测量的数据是否有问题）
+    tolerance: 计算得到周期和理论周期的允差值（用于判断测量的数据是否有问题）
     @返回值: 
     str: 所有计算结果 列为字符串并返回
     '''
@@ -836,29 +836,27 @@ def polarplot(data_ori:pd.DataFrame,des_ori:pd.DataFrame,base_height:float,desig
         str_text = str_text+i+'\n\n'
     return str_text
 
-def autodeal(data_ori:pd.DataFrame,des_ori:pd.DataFrame,angle_colname:str,inlet_colname:str,exhaustlet_colname:str,spline_colname:str,start_angle:int,cycle_value:int,angle_coefficient:float,line_coefficient:float,tolerance:float,inlet_value:int,exlet_value:int,base_range:int,lift_range:int,dec_colname:str,dec_range:int):
+def autodeal(data_ori:pd.DataFrame,des_ori:pd.DataFrame,angle_colname:str,inlet_colname:str,exhaustlet_colname:str,spline_colname:str,start_angle:int,cycle_value:int,angle_coefficient:float,line_coefficient:float,tolerance:float,inlet_value:int,exlet_value:int,base_range:int,lift_range:int,dec_colname:str,dec_range:int)->str:
     '''
-    函数功能: 传入所有所需的参数 一键分析 形线的各类参数信息
-    @参数: 
-    data_ori: 测量形线原始数据
-    des_ori: 设计形线原始数据
-    angle_colname: 角度数据列的列名
-    inlet_colname: 进气形线列名
-    exhaustlet_colname: 排气形线列名
-    spline_colname: 正时点的计算 基准形线列名
-    start_angle: 起始角度值 求取凸轮对称轴角度值时 选取的计算范围的起始位置
-    cycle_value: 角度周期值
-    angle_coefficient: 角度的 脉冲数->度 的比例系数
-    line_coefficient: 高度的 脉冲数->mm 的比例系数
-    tolerance: 测量的周期误差（用于判断测量的数据是否有问题）
-    inlet_value: 位于正时点位置时 进气形线的高度值
-    exlet_value: 位于正时点位置时 排气形线的高度值
-    base_range: 基圆的角度范围（用于计算基圆的跳动）
-    lift_range: 升程的角度范围（用于计算升程的跳动）
-    dec_colname: 减压高度 基准形线列名
-    dec_range: 减压高度的角度范围
-    @返回值: 
-    str: 所有计算结果 列为字符串并返回
+    函数功能 传入所有所需的参数 一键分析 形线的各类参数信息
+    @param data_ori 测量形线原始数据
+    @param des_ori 设计形线原始数据
+    @param angle_colname 角度数据列的列名
+    @param inlet_colname 进气形线列名
+    @param exhaustlet_colname 排气形线列名
+    @param spline_colname 正时点的计算 基准形线列名
+    @param start_angle 起始角度值 求取凸轮对称轴角度值时 选取的计算范围的起始位置 计算用的是脉冲数量(pul)
+    @param cycle_value 角度周期值 实际计算用的是脉冲数量(pul)
+    @param angle_coefficient 角度的脉冲数->度的比例系数
+    @param line_coefficient 高度的脉冲数->mm的比例系数
+    @param tolerance 测量的周期和理论周期的允差（用于判断测量的数据是否有问题）计算用的是脉冲数量(pul)
+    @param inlet_value 位于正时点位置时 进气形线的高度值 计算用的是脉冲数量(pul)
+    @param exlet_value 位于正时点位置时 排气形线的高度值 计算用的是脉冲数量(pul)
+    @param base_range 基圆的角度范围（用于计算基圆的跳动) 计算用的是脉冲数量(pul)
+    @param lift_range 升程的角度范围（用于计算升程的跳动）计算用的是脉冲数量(pul)
+    @param dec_colname 减压高度 基准形线列名
+    @param dec_range 减压高度的角度范围 计算用的是脉冲数量(pul)
+    @return str 将所有计算结果合成一份报告返回
     '''
     #数据校验
     texttips = []
